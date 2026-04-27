@@ -468,7 +468,7 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
         <label>Zendesk seats<span class="cg-val"><input type="number" id="zd-seats" min="1" max="500" step="1" value="35" style="width:52px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right" oninput="update()"></span></label>
       </div>
       <div class="cg-row">
-        <label>Zendesk / seat / month<span class="cg-val">€<input type="number" id="zd-seat" min="0" max="500" step="1" value="169" style="width:52px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right" oninput="update()"></span></label>
+        <label>Zendesk / seat / month<span class="cg-val">€<input type="number" id="zd-seat" min="0" max="500" step="1" value="141" style="width:52px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right" oninput="update()"></span></label>
       </div>
       </div>
     </div>
@@ -874,15 +874,15 @@ function update(scenarioName) {
   if (wsStatsEl) wsStatsEl.innerHTML = wsStatsEl.textContent + costSpan(costs.wsCost);
 
   // Cost breakdown bar
-  const zdSeat  = +document.getElementById('zd-seat').value  || 169;
-  const zdSeats = +document.getElementById('zd-seats').value || 35;
-  const zdAnnual = zdSeats * zdSeat * 12;
-  const talkUsage = 1500;
-  const toolingTotal = zdAnnual + talkUsage;
+  const zdSeat   = +document.getElementById('zd-seat').value  || 141;
+  const zdSeats  = +document.getElementById('zd-seats').value || 35;
+  const zdAnnual = zdSeats * zdSeat * 12;   // Suite Enterprise + WFE per seat
+  const fixedCosts = 100010;                // AI Agents €20k + Automated Resolutions €80k + Talk €10
+  const toolingTotal = zdAnnual + fixedCosts;
   const grandTotal = costs.total + toolingTotal;
   setVal('cb-hc',         '€' + costs.total.toLocaleString('de-DE'));
   setVal('cb-tool',       '€' + toolingTotal.toLocaleString('de-DE'));
-  setVal('cb-tool-seats', zdSeats + ' seats · ~€1,500 Talk');
+  setVal('cb-tool-seats', zdSeats + ' seats · €100k fixed (AI + AR)');
   setVal('cb-total',      '€' + grandTotal.toLocaleString('de-DE'));
 
   // Salary slider display labels
