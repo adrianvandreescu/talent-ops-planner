@@ -211,11 +211,41 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 .step-effective { font-size: 10px; color: var(--muted); margin-top: -6px; padding-left: 2px; }
 .step-effective strong { color: var(--blue); font-weight: 700; }
 
-/* ── Tool rows ── */
-.tool-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 9px 10px; background: rgba(45,49,255,.03); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
-.tool-row-name { font-size: 12px; font-weight: 600; border: none; background: transparent; font-family: inherit; color: var(--text); padding: 0; width: 100%; }
+/* ── Vendor groups ── */
+.vendor-group { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.vg-header { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; cursor: pointer; background: var(--surface); user-select: none; gap: 8px; transition: background .15s; }
+.vg-header:hover { background: rgba(45,49,255,.04); }
+.vg-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; background: #03363d; color: #fff; font-size: 9px; font-weight: 800; letter-spacing: .3px; flex-shrink: 0; }
+.vg-name { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--text); flex: 1; }
+.vg-header-right { display: flex; align-items: center; gap: 7px; }
+.vg-header-subtotal { font-size: 13px; font-weight: 700; color: var(--blue); }
+.vg-chevron { font-size: 10px; color: var(--muted); transition: transform .2s; }
+.vendor-group.expanded .vg-chevron { transform: rotate(180deg); }
+.vg-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+.vendor-group.expanded .vg-body { max-height: 600px; }
+.vg-inner { padding: 10px 12px 12px; border-top: 1px solid var(--border); background: rgba(45,49,255,.015); }
+/* anchor row (Suite + WFE) */
+.vg-anchor { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
+.vg-anchor-name { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.vg-anchor-cost { font-size: 13px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+/* line items */
+.vg-line { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.vg-line-name { flex: 1; min-width: 0; }
+.vg-line-name-input { width: 100%; font-size: 11px; font-weight: 500; color: var(--text); border: none; background: transparent; font-family: inherit; padding: 0; }
+.vg-line-name-input:focus { outline: none; border-bottom: 1px solid var(--blue); }
+.vg-line-cost-input { width: 72px; padding: 2px 5px; border: 1px solid #d5dae2; border-radius: 5px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--purple); text-align: right; }
+.vg-line-del { border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 1px 3px; font-size: 13px; line-height: 1; transition: color .15s; flex-shrink: 0; }
+.vg-line-del:hover { color: #e74c3c; }
+.vg-add-line { width: 100%; margin-top: 4px; padding: 5px; border: 1px dashed rgba(3,54,61,.25); border-radius: 6px; background: transparent; font-family: inherit; font-size: 11px; color: #03363d; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background .15s; }
+.vg-add-line:hover { background: rgba(3,54,61,.06); }
+.vg-subtotal-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--border); }
+.vg-subtotal-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+.vg-subtotal-val { font-size: 13px; font-weight: 700; color: var(--blue); }
+/* standalone tool rows */
+.tool-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(45,49,255,.03); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.tool-row-name { flex: 1; font-size: 12px; font-weight: 500; border: none; background: transparent; font-family: inherit; color: var(--text); padding: 0; }
 .tool-row-name:focus { outline: none; border-bottom: 1px solid var(--blue); }
-.tool-row-del { border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 2px 4px; border-radius: 4px; font-size: 14px; line-height: 1; transition: color .15s; flex-shrink: 0; }
+.tool-row-del { border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 2px 4px; border-radius: 4px; font-size: 13px; line-height: 1; transition: color .15s; flex-shrink: 0; }
 .tool-row-del:hover { color: #e74c3c; }
 
 /* ── Day toggles ── */
@@ -477,37 +507,70 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
     <div class="cg collapsed">
       <div class="cg-title collapsible" onclick="toggleSection(this)">Tooling Costs</div>
       <div class="collapsible-body">
-        <!-- Zendesk row (pinned, not deletable) -->
-        <div class="tool-row" id="tool-row-zd" data-fixed="true">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px">Zendesk Suite + WFE</div>
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-              <input type="number" id="zd-seats" min="1" max="500" step="1" value="35"
-                style="width:46px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
-                oninput="update()" title="Number of seats">
-              <span style="font-size:11px;color:var(--muted)">seats ×</span>
-              <span style="font-size:11px;color:var(--muted)">€</span><input type="number" id="zd-seat" min="0" max="999" step="1" value="141"
-                style="width:46px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
-                oninput="update()" title="€ per seat per month">
-              <span style="font-size:11px;color:var(--muted)">/mo</span>
+
+        <!-- ── Zendesk vendor group ── -->
+        <div class="vendor-group expanded" id="vg-zendesk">
+          <div class="vg-header" onclick="toggleVendor(this)">
+            <div class="vg-name">
+              <span class="vg-badge">ZD</span>
+              Zendesk
+            </div>
+            <div class="vg-header-right">
+              <span class="vg-header-subtotal" id="zd-header-subtotal">€159.230</span>
+              <span class="vg-chevron">▾</span>
             </div>
           </div>
-          <div style="text-align:right;white-space:nowrap">
-            <div id="zd-annual-display" style="font-size:13px;font-weight:700;color:var(--blue)">€59.220</div>
-            <div style="font-size:10px;color:var(--muted)">/yr</div>
+          <div class="vg-body">
+            <div class="vg-inner">
+              <!-- Anchor: seats-based row -->
+              <div class="vg-anchor">
+                <div style="flex:1;min-width:0">
+                  <div class="vg-anchor-name">Suite + WFE</div>
+                  <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:4px">
+                    <input type="number" id="zd-seats" min="1" max="500" step="1" value="35"
+                      style="width:44px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+                      oninput="update()" title="Number of seats">
+                    <span style="font-size:11px;color:var(--muted)">seats × €</span>
+                    <input type="number" id="zd-seat" min="0" max="999" step="1" value="141"
+                      style="width:44px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+                      oninput="update()" title="€ per seat per month">
+                    <span style="font-size:11px;color:var(--muted)">/mo</span>
+                  </div>
+                </div>
+                <div style="text-align:right;white-space:nowrap">
+                  <div class="vg-anchor-cost" id="zd-annual-display">€59.220</div>
+                  <div style="font-size:10px;color:var(--muted)">/yr</div>
+                </div>
+              </div>
+
+              <!-- Fixed Zendesk line items -->
+              <div id="zd-line-rows"></div>
+
+              <!-- Add Zendesk line item -->
+              <button class="vg-add-line" onclick="addZdLine()">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M1 5h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Add Zendesk line item
+              </button>
+
+              <!-- Zendesk subtotal -->
+              <div class="vg-subtotal-row">
+                <span class="vg-subtotal-label">Zendesk subtotal</span>
+                <span class="vg-subtotal-val" id="zd-subtotal-display">€159.230</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Dynamic tool rows container -->
+        <!-- Other vendor / tool rows -->
         <div id="tool-rows-extra"></div>
 
-        <!-- Add tool button -->
-        <button onclick="addToolRow()" style="width:100%;margin-top:4px;padding:7px;border:1px dashed var(--border);border-radius:8px;background:transparent;font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s" onmouseover="this.style.background='rgba(45,49,255,.05)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+        <!-- Add vendor / tool button -->
+        <button onclick="addToolRow()" style="width:100%;margin-top:2px;padding:7px;border:1px dashed var(--border);border-radius:8px;background:transparent;font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s" onmouseover="this.style.background='rgba(45,49,255,.05)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Add tool
+          Add vendor / tool
         </button>
 
-        <!-- Divider + total -->
+        <!-- Grand total -->
         <div style="height:1px;background:var(--border);margin:12px 0 8px"></div>
         <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 2px">
           <span style="font-size:12px;font-weight:600;color:var(--text)">Total tooling / yr</span>
@@ -736,45 +799,62 @@ function toggleSection(titleEl) {
   titleEl.closest('.cg').classList.toggle('collapsed');
 }
 
-let _toolRowCounter = 0;
-const PRESET_TOOLS = [
-  { name: 'AI Agents (Zendesk)',        cost: 20000 },
-  { name: 'Automated Resolutions',      cost: 80000 },
-  { name: 'Talk Credits',               cost: 10    },
+// ── Vendor group toggle ──
+function toggleVendor(headerEl) {
+  headerEl.closest('.vendor-group').classList.toggle('expanded');
+}
+
+// ── Zendesk line items ──
+let _zdLineCounter = 0;
+const ZD_PRESET_LINES = [
+  { name: 'AI Agents',              cost: 20000 },
+  { name: 'Automated Resolutions',  cost: 80000 },
+  { name: 'Talk Credits',           cost: 10    },
 ];
+
+function addZdLine(name, cost) {
+  const container = document.getElementById('zd-line-rows');
+  const costVal = cost !== undefined ? cost : 0;
+  const nameVal = name || 'New line item';
+  const row = document.createElement('div');
+  row.className = 'vg-line';
+  row.innerHTML = `
+    <div class="vg-line-name">
+      <input class="vg-line-name-input" type="text" value="${nameVal.replace(/"/g,'&quot;')}"
+        placeholder="Line item name" oninput="update()">
+    </div>
+    <span style="font-size:11px;color:var(--muted)">€</span>
+    <input type="number" class="vg-line-cost-input zd-line-cost" min="0" step="1" value="${costVal}" oninput="update()">
+    <span style="font-size:10px;color:var(--muted)">/yr</span>
+    <button class="vg-line-del" onclick="removeZdLine(this)" title="Remove">✕</button>`;
+  container.appendChild(row);
+  update();
+}
+
+function removeZdLine(btn) {
+  btn.closest('.vg-line').remove();
+  update();
+}
+
+// ── Standalone other-vendor tool rows ──
+let _toolRowCounter = 0;
 
 function addToolRow(name, cost) {
   const container = document.getElementById('tool-rows-extra');
-  const id = 'tool-extra-' + (++_toolRowCounter);
   const costVal = cost !== undefined ? cost : 0;
   const nameVal = name || 'New tool';
   const row = document.createElement('div');
   row.className = 'tool-row';
-  row.dataset.toolId = id;
   row.innerHTML = `
-    <div style="flex:1;min-width:0">
-      <input class="tool-row-name" type="text" value="${nameVal.replace(/"/g,'&quot;')}"
-        placeholder="Tool name" oninput="update()">
-      <div style="display:flex;align-items:center;gap:4px;margin-top:5px">
-        <span style="font-size:11px;color:var(--muted)">€</span>
-        <input type="number" class="tool-extra-cost" min="0" step="1" value="${costVal}"
-          style="width:80px;padding:2px 5px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
-          oninput="update()">
-        <span style="font-size:11px;color:var(--muted)">/yr</span>
-      </div>
-    </div>
-    <div style="text-align:right;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-      <button class="tool-row-del" onclick="removeToolRow(this)" title="Remove">✕</button>
-      <div class="tool-extra-display" style="font-size:13px;font-weight:700;color:var(--blue)">€${costVal.toLocaleString('de-DE')}</div>
-      <div style="font-size:10px;color:var(--muted)">/yr</div>
-    </div>`;
+    <input class="tool-row-name" type="text" value="${nameVal.replace(/"/g,'&quot;')}"
+      placeholder="Tool / vendor name" oninput="update()">
+    <span style="font-size:11px;color:var(--muted)">€</span>
+    <input type="number" class="tool-extra-cost" min="0" step="1" value="${costVal}"
+      style="width:72px;padding:2px 5px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+      oninput="update()">
+    <span style="font-size:10px;color:var(--muted)">/yr</span>
+    <button class="tool-row-del" onclick="removeToolRow(this)" title="Remove">✕</button>`;
   container.appendChild(row);
-  // Keep individual display in sync
-  const inp = row.querySelector('.tool-extra-cost');
-  const disp = row.querySelector('.tool-extra-display');
-  inp.addEventListener('input', () => {
-    disp.textContent = '€' + (+inp.value || 0).toLocaleString('de-DE');
-  });
   update();
 }
 
@@ -783,9 +863,9 @@ function removeToolRow(btn) {
   update();
 }
 
-// Seed preset tools on page load
+// ── Seed on page load ──
 function initToolRows() {
-  PRESET_TOOLS.forEach(t => addToolRow(t.name, t.cost));
+  ZD_PRESET_LINES.forEach(t => addZdLine(t.name, t.cost));
 }
 
 function setVal(id, text) {
@@ -973,21 +1053,25 @@ function update(scenarioName) {
   const zdSeat   = +document.getElementById('zd-seat').value  || 141;
   const zdSeats  = +document.getElementById('zd-seats').value || 35;
   const zdAnnual = zdSeats * zdSeat * 12;
-  // Sum all extra tool rows
-  let extraToolCosts = 0;
-  document.querySelectorAll('.tool-extra-cost').forEach(inp => {
-    extraToolCosts += +inp.value || 0;
-  });
-  const toolingTotal = zdAnnual + extraToolCosts;
+  // Sum Zendesk fixed line items
+  let zdFixed = 0;
+  document.querySelectorAll('.zd-line-cost').forEach(inp => { zdFixed += +inp.value || 0; });
+  const zdTotal = zdAnnual + zdFixed;
+  // Sum standalone other-vendor rows
+  let otherTools = 0;
+  document.querySelectorAll('.tool-extra-cost').forEach(inp => { otherTools += +inp.value || 0; });
+  const toolingTotal = zdTotal + otherTools;
   const grandTotal = costs.total + toolingTotal;
   // Update Tooling Costs section displays
-  const zdAnnualEl = document.getElementById('zd-annual-display');
-  if (zdAnnualEl) zdAnnualEl.textContent = '€' + zdAnnual.toLocaleString('de-DE');
-  const toolTotalEl = document.getElementById('tooling-total-display');
-  if (toolTotalEl) toolTotalEl.textContent = '€' + toolingTotal.toLocaleString('de-DE');
+  const el = id => document.getElementById(id);
+  if (el('zd-annual-display'))    el('zd-annual-display').textContent    = '€' + zdAnnual.toLocaleString('de-DE');
+  if (el('zd-subtotal-display'))  el('zd-subtotal-display').textContent  = '€' + zdTotal.toLocaleString('de-DE');
+  if (el('zd-header-subtotal'))   el('zd-header-subtotal').textContent   = '€' + zdTotal.toLocaleString('de-DE');
+  if (el('tooling-total-display'))el('tooling-total-display').textContent= '€' + toolingTotal.toLocaleString('de-DE');
   setVal('cb-hc',         '€' + costs.total.toLocaleString('de-DE'));
   setVal('cb-tool',       '€' + toolingTotal.toLocaleString('de-DE'));
-  setVal('cb-tool-seats', zdSeats + ' seats' + (extraToolCosts > 0 ? ' + ' + document.querySelectorAll('.tool-extra-cost').length + ' tool(s)' : ''));
+  const otherCount = document.querySelectorAll('.tool-extra-cost').length;
+  setVal('cb-tool-seats', 'Zendesk €' + zdTotal.toLocaleString('de-DE') + (otherCount > 0 ? ' + ' + otherCount + ' other' : ''));
   setVal('cb-total',      '€' + grandTotal.toLocaleString('de-DE'));
 
   // Salary slider display labels
