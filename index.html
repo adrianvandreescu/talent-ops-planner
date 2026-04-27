@@ -211,6 +211,13 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 .step-effective { font-size: 10px; color: var(--muted); margin-top: -6px; padding-left: 2px; }
 .step-effective strong { color: var(--blue); font-weight: 700; }
 
+/* ── Tool rows ── */
+.tool-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 9px 10px; background: rgba(45,49,255,.03); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+.tool-row-name { font-size: 12px; font-weight: 600; border: none; background: transparent; font-family: inherit; color: var(--text); padding: 0; width: 100%; }
+.tool-row-name:focus { outline: none; border-bottom: 1px solid var(--blue); }
+.tool-row-del { border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 2px 4px; border-radius: 4px; font-size: 14px; line-height: 1; transition: color .15s; flex-shrink: 0; }
+.tool-row-del:hover { color: #e74c3c; }
+
 /* ── Day toggles ── */
 .day-row { display: flex; gap: 4px; }
 .day-btn {
@@ -463,13 +470,50 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
         All rates are <strong style="color:var(--text)">gross</strong> — employer overhead applied automatically:<br>
         FTE <strong style="color:var(--blue)">+21%</strong> &nbsp;·&nbsp; WS <strong style="color:var(--blue)">+10.9%</strong>
       </div>
-      <div style="height:1px;background:var(--border);margin:4px 0 14px"></div>
-      <div class="cg-row">
-        <label>Zendesk seats<span class="cg-val"><input type="number" id="zd-seats" min="1" max="500" step="1" value="35" style="width:52px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right" oninput="update()"></span></label>
       </div>
-      <div class="cg-row">
-        <label>Zendesk / seat / month<span class="cg-val">€<input type="number" id="zd-seat" min="0" max="500" step="1" value="141" style="width:52px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right" oninput="update()"></span></label>
-      </div>
+    </div>
+
+    <!-- Tooling Costs -->
+    <div class="cg collapsed">
+      <div class="cg-title collapsible" onclick="toggleSection(this)">Tooling Costs</div>
+      <div class="collapsible-body">
+        <!-- Zendesk row (pinned, not deletable) -->
+        <div class="tool-row" id="tool-row-zd" data-fixed="true">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px">Zendesk Suite + WFE</div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <input type="number" id="zd-seats" min="1" max="500" step="1" value="35"
+                style="width:46px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+                oninput="update()" title="Number of seats">
+              <span style="font-size:11px;color:var(--muted)">seats ×</span>
+              <span style="font-size:11px;color:var(--muted)">€</span><input type="number" id="zd-seat" min="0" max="999" step="1" value="141"
+                style="width:46px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+                oninput="update()" title="€ per seat per month">
+              <span style="font-size:11px;color:var(--muted)">/mo</span>
+            </div>
+          </div>
+          <div style="text-align:right;white-space:nowrap">
+            <div id="zd-annual-display" style="font-size:13px;font-weight:700;color:var(--blue)">€59.220</div>
+            <div style="font-size:10px;color:var(--muted)">/yr</div>
+          </div>
+        </div>
+
+        <!-- Dynamic tool rows container -->
+        <div id="tool-rows-extra"></div>
+
+        <!-- Add tool button -->
+        <button onclick="addToolRow()" style="width:100%;margin-top:4px;padding:7px;border:1px dashed var(--border);border-radius:8px;background:transparent;font-family:inherit;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .15s,color .15s" onmouseover="this.style.background='rgba(45,49,255,.05)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--muted)'">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Add tool
+        </button>
+
+        <!-- Divider + total -->
+        <div style="height:1px;background:var(--border);margin:12px 0 8px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 2px">
+          <span style="font-size:12px;font-weight:600;color:var(--text)">Total tooling / yr</span>
+          <span id="tooling-total-display" style="font-size:14px;font-weight:700;color:var(--blue)">€159.230</span>
+        </div>
+        <div style="height:10px"></div>
       </div>
     </div>
 
@@ -692,6 +736,58 @@ function toggleSection(titleEl) {
   titleEl.closest('.cg').classList.toggle('collapsed');
 }
 
+let _toolRowCounter = 0;
+const PRESET_TOOLS = [
+  { name: 'AI Agents (Zendesk)',        cost: 20000 },
+  { name: 'Automated Resolutions',      cost: 80000 },
+  { name: 'Talk Credits',               cost: 10    },
+];
+
+function addToolRow(name, cost) {
+  const container = document.getElementById('tool-rows-extra');
+  const id = 'tool-extra-' + (++_toolRowCounter);
+  const costVal = cost !== undefined ? cost : 0;
+  const nameVal = name || 'New tool';
+  const row = document.createElement('div');
+  row.className = 'tool-row';
+  row.dataset.toolId = id;
+  row.innerHTML = `
+    <div style="flex:1;min-width:0">
+      <input class="tool-row-name" type="text" value="${nameVal.replace(/"/g,'&quot;')}"
+        placeholder="Tool name" oninput="update()">
+      <div style="display:flex;align-items:center;gap:4px;margin-top:5px">
+        <span style="font-size:11px;color:var(--muted)">€</span>
+        <input type="number" class="tool-extra-cost" min="0" step="1" value="${costVal}"
+          style="width:80px;padding:2px 5px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
+          oninput="update()">
+        <span style="font-size:11px;color:var(--muted)">/yr</span>
+      </div>
+    </div>
+    <div style="text-align:right;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <button class="tool-row-del" onclick="removeToolRow(this)" title="Remove">✕</button>
+      <div class="tool-extra-display" style="font-size:13px;font-weight:700;color:var(--blue)">€${costVal.toLocaleString('de-DE')}</div>
+      <div style="font-size:10px;color:var(--muted)">/yr</div>
+    </div>`;
+  container.appendChild(row);
+  // Keep individual display in sync
+  const inp = row.querySelector('.tool-extra-cost');
+  const disp = row.querySelector('.tool-extra-display');
+  inp.addEventListener('input', () => {
+    disp.textContent = '€' + (+inp.value || 0).toLocaleString('de-DE');
+  });
+  update();
+}
+
+function removeToolRow(btn) {
+  btn.closest('.tool-row').remove();
+  update();
+}
+
+// Seed preset tools on page load
+function initToolRows() {
+  PRESET_TOOLS.forEach(t => addToolRow(t.name, t.cost));
+}
+
 function setVal(id, text) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -873,16 +969,25 @@ function update(scenarioName) {
   if (l1StatsEl) l1StatsEl.innerHTML = l1StatsEl.textContent + costSpan(costs.l1Cost);
   if (wsStatsEl) wsStatsEl.innerHTML = wsStatsEl.textContent + costSpan(costs.wsCost);
 
-  // Cost breakdown bar
+  // Cost breakdown bar — tooling from dynamic Tooling Costs section
   const zdSeat   = +document.getElementById('zd-seat').value  || 141;
   const zdSeats  = +document.getElementById('zd-seats').value || 35;
-  const zdAnnual = zdSeats * zdSeat * 12;   // Suite Enterprise + WFE per seat
-  const fixedCosts = 100010;                // AI Agents €20k + Automated Resolutions €80k + Talk €10
-  const toolingTotal = zdAnnual + fixedCosts;
+  const zdAnnual = zdSeats * zdSeat * 12;
+  // Sum all extra tool rows
+  let extraToolCosts = 0;
+  document.querySelectorAll('.tool-extra-cost').forEach(inp => {
+    extraToolCosts += +inp.value || 0;
+  });
+  const toolingTotal = zdAnnual + extraToolCosts;
   const grandTotal = costs.total + toolingTotal;
+  // Update Tooling Costs section displays
+  const zdAnnualEl = document.getElementById('zd-annual-display');
+  if (zdAnnualEl) zdAnnualEl.textContent = '€' + zdAnnual.toLocaleString('de-DE');
+  const toolTotalEl = document.getElementById('tooling-total-display');
+  if (toolTotalEl) toolTotalEl.textContent = '€' + toolingTotal.toLocaleString('de-DE');
   setVal('cb-hc',         '€' + costs.total.toLocaleString('de-DE'));
   setVal('cb-tool',       '€' + toolingTotal.toLocaleString('de-DE'));
-  setVal('cb-tool-seats', zdSeats + ' seats · €100k fixed (AI + AR)');
+  setVal('cb-tool-seats', zdSeats + ' seats' + (extraToolCosts > 0 ? ' + ' + document.querySelectorAll('.tool-extra-cost').length + ' tool(s)' : ''));
   setVal('cb-total',      '€' + grandTotal.toLocaleString('de-DE'));
 
   // Salary slider display labels
@@ -999,6 +1104,7 @@ activeDays = new Set([0,1,2,3,4]);
 document.querySelectorAll('.day-btn').forEach(b =>
   b.classList.toggle('active', activeDays.has(+b.dataset.d))
 );
+initToolRows();
 setActive('current');
 update('Current State');
 
