@@ -269,6 +269,44 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 </head>
 <body>
 
+<!-- Password gate -->
+<div id="pw-gate" style="position:fixed;inset:0;background:#f4f5f9;display:flex;align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#fff;border:1px solid #e2e5eb;border-radius:14px;padding:40px 44px;display:flex;flex-direction:column;align-items:center;gap:20px;width:340px;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 885.93 885.93" style="height:40px;width:40px;border-radius:8px">
+      <rect fill="#2d31ff" width="885.93" height="885.93"/>
+      <g fill="#fff">
+        <path d="M173,360.12l79.51-85.5v-2h-75.52v-46.58h153.7v39.26l-80.84,84.84v1.66h79.51v47.24h-156.36v-38.92Z"/>
+        <path d="M339.34,311.88c0-56.22,40.59-88.5,89.16-88.5s88.16,28.61,88.16,88.16v13.31h-114.44c1.66,21.96,12.31,33.93,26.28,33.93,10.98,0,18.63-7.32,22.29-19.96h63.54c-9.32,39.26-43.58,62.88-85.83,62.88-48.9,0-89.16-32.94-89.16-89.83ZM452.45,291.92c-1.33-13.31-7.65-25.95-24.29-25.95-13.31,0-22.96,7.98-25.62,25.95h49.9Z"/>
+        <path d="M618.45,270.63c-17.3,0-22.29,14.97-22.29,36.93v91.49h-63.21v-173h63.21v24.95h2c11.98-19.96,28.28-27.61,47.24-27.61,34.27,0,58.55,23.29,58.55,70.2v105.46h-63.21v-94.82c0-21.29-6.32-33.6-22.29-33.6Z"/>
+      </g>
+    </svg>
+    <div style="text-align:center">
+      <div style="font-size:15px;font-weight:700;color:#1a1d23;letter-spacing:-.02em">Talent Operations Planner</div>
+      <div style="font-size:11px;color:#8a94a6;margin-top:3px">Enter password to continue</div>
+    </div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:10px">
+      <input id="pw-input" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()"
+        style="width:100%;padding:10px 14px;border:1.5px solid #e2e5eb;border-radius:8px;font-family:inherit;font-size:13px;outline:none;box-sizing:border-box;transition:border-color .15s"
+        onfocus="this.style.borderColor='#2d31ff'" onblur="this.style.borderColor='#e2e5eb'">
+      <div id="pw-err" style="font-size:11px;color:#c80d2c;min-height:14px;text-align:center"></div>
+      <button onclick="checkPw()"
+        style="width:100%;padding:10px;background:#2d31ff;color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s"
+        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Continue</button>
+    </div>
+  </div>
+</div>
+<script>
+  function checkPw() {
+    if (document.getElementById('pw-input').value === '*dMhsZtHbUvC36f*dnf.') {
+      document.getElementById('pw-gate').style.display = 'none';
+    } else {
+      document.getElementById('pw-err').textContent = 'Incorrect password — try again';
+      document.getElementById('pw-input').value = '';
+      document.getElementById('pw-input').focus();
+    }
+  }
+</script>
+
 <!-- Header -->
 <header>
   <div class="header-left">
