@@ -334,8 +334,8 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
   </div>
   <div class="scenarios">
     <span class="scenarios-label">Scenario</span>
-    <button class="sbtn" onclick="loadScenario('current')">Current State</button>
-    <button class="sbtn active" onclick="loadScenario('proposal')">Flat Proposal</button>
+    <button class="sbtn active" onclick="loadScenario('current')">Current State</button>
+    <button class="sbtn" onclick="loadScenario('proposal')">Flat Proposal</button>
   </div>
 </header>
 
@@ -981,16 +981,16 @@ function loadScenario(key) {
   update(s.name);
 }
 
-// Initialise with flat proposal values
-document.getElementById('l1r').value  = 4;
-document.getElementById('l1w').value  = 4;
+// Initialise with current state values
+document.getElementById('l1r').value  = 2;
+document.getElementById('l1w').value  = 5;
 document.getElementById('l2r').value  = 3;
 document.getElementById('l2w').value  = 2;
-document.getElementById('wsf').value  = 3;
-document.getElementById('l1w-hrs').value = 13.75;
+document.getElementById('wsf').value  = 6;
+document.getElementById('l1w-hrs').value = 15;
 document.getElementById('l2w-hrs').value = 10;
-document.getElementById('wsf-hrs').value = (59/3).toFixed(4);
-document.getElementById('req-fte').value = 2;
+document.getElementById('wsf-hrs').value = (119/6).toFixed(4);
+document.getElementById('req-fte').value = 0;
 document.getElementById('start-hr').value = 9;
 document.getElementById('end-hr').value   = 17;
 // Set active days M-F
@@ -998,8 +998,8 @@ activeDays = new Set([0,1,2,3,4]);
 document.querySelectorAll('.day-btn').forEach(b =>
   b.classList.toggle('active', activeDays.has(+b.dataset.d))
 );
-setActive('proposal');
-update('Flat Proposal');
+setActive('current');
+update('Current State');
 
 document.querySelectorAll('.has-tip').forEach(el => {
   const icon = document.createElement('span');
