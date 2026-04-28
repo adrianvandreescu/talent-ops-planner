@@ -225,14 +225,21 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 .vg-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
 .vendor-group.expanded .vg-body { max-height: 600px; }
 .vg-inner { padding: 10px 12px 12px; border-top: 1px solid var(--border); background: rgba(45,49,255,.015); }
-/* line items */
-.vg-line { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-.vg-line-name { flex: 1; min-width: 0; }
-.vg-line-name-input { width: 100%; font-size: 11px; font-weight: 500; color: var(--text); border: none; background: transparent; font-family: inherit; padding: 0; }
+/* line items — two-line card layout */
+.vg-line { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 7px; }
+.vg-line-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.vg-line-name-input { flex: 1; min-width: 0; font-size: 12px; font-weight: 600; color: var(--text); border: none; background: transparent; font-family: inherit; padding: 0; }
 .vg-line-name-input:focus { outline: none; border-bottom: 1px solid var(--blue); }
-.vg-line-cost-input { width: 72px; padding: 2px 5px; border: 1px solid #d5dae2; border-radius: 5px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--purple); text-align: right; }
+.vg-type-badge { font-size: 9px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; white-space: nowrap; }
+.vg-type-seat { background: rgba(3,54,61,.08); color: #03363d; }
+.vg-type-flat { background: rgba(0,0,0,.05); color: var(--muted); }
 .vg-line-del { border: none; background: transparent; cursor: pointer; color: var(--muted); padding: 1px 3px; font-size: 13px; line-height: 1; transition: color .15s; flex-shrink: 0; }
 .vg-line-del:hover { color: #e74c3c; }
+.vg-line-detail { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.vg-detail-text { font-size: 11px; color: var(--muted); }
+.vg-computed-cost { font-size: 12px; font-weight: 700; color: var(--blue); }
+.vg-seat-count { width: 40px; padding: 2px 4px; border: 1px solid #d5dae2; border-radius: 5px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--purple); text-align: right; }
+.vg-line-cost-input { width: 80px; padding: 2px 5px; border: 1px solid #d5dae2; border-radius: 5px; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--purple); text-align: right; }
 .vg-add-line { width: 100%; margin-top: 4px; padding: 5px; border: 1px dashed rgba(3,54,61,.25); border-radius: 6px; background: transparent; font-family: inherit; font-size: 11px; color: #03363d; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; transition: background .15s; }
 .vg-add-line:hover { background: rgba(3,54,61,.06); }
 .vg-subtotal-row { display: flex; justify-content: space-between; align-items: baseline; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--border); }
@@ -778,28 +785,66 @@ function toggleVendor(headerEl) {
 // ── Zendesk line items ──
 let _zdLineCounter = 0;
 const ZD_PRESET_LINES = [
-  { name: 'Suite Enterprise (35 seats)', cost: 21477 },
-  { name: 'WFE Bundle (35 seats)',        cost: 14280 },
-  { name: 'AI Agents',                    cost: 20000 },
-  { name: 'Automated Resolutions',       cost: 76000 },
+  { type: 'seat', name: 'Suite Enterprise', seats: 35, annualPerSeat: 21477 / 35 },
+  { type: 'seat', name: 'WFE Bundle',       seats: 35, annualPerSeat: 14280 / 35 },
+  { type: 'flat', name: 'AI Agents',        cost: 20000 },
+  { type: 'flat', name: 'Automated Resolutions', cost: 76000 },
 ];
 
-function addZdLine(name, cost) {
+function addZdSeatLine(name, seats, annualPerSeat) {
+  const container = document.getElementById('zd-line-rows');
+  const annual = Math.round(seats * annualPerSeat);
+  const monthlyRate = (annualPerSeat / 12).toFixed(2);
+  const row = document.createElement('div');
+  row.className = 'vg-line';
+  row.dataset.annualPerSeat = annualPerSeat;
+  row.innerHTML = `
+    <div class="vg-line-top">
+      <input class="vg-line-name-input" type="text" value="${name.replace(/"/g,'&quot;')}" placeholder="Name" oninput="update()">
+      <span class="vg-type-badge vg-type-seat">per seat</span>
+      <button class="vg-line-del" onclick="removeZdLine(this)" title="Remove">✕</button>
+    </div>
+    <div class="vg-line-detail">
+      <input type="number" class="vg-seat-count" min="1" max="500" step="1" value="${seats}"
+        oninput="updateZdSeatRow(this);update()" title="Number of seats">
+      <span class="vg-detail-text">seats × €${monthlyRate}/mo =</span>
+      <span class="vg-computed-cost">€${annual.toLocaleString('de-DE')}</span>
+      <span class="vg-detail-text">/yr</span>
+    </div>`;
+  container.appendChild(row);
+}
+
+function updateZdSeatRow(input) {
+  const row = input.closest('.vg-line');
+  const seats = +input.value || 0;
+  const annualPerSeat = parseFloat(row.dataset.annualPerSeat) || 0;
+  const annual = Math.round(seats * annualPerSeat);
+  const disp = row.querySelector('.vg-computed-cost');
+  if (disp) disp.textContent = '€' + annual.toLocaleString('de-DE');
+}
+
+function addZdFlatLine(name, cost) {
   const container = document.getElementById('zd-line-rows');
   const costVal = cost !== undefined ? cost : 0;
-  const nameVal = name || 'New line item';
   const row = document.createElement('div');
   row.className = 'vg-line';
   row.innerHTML = `
-    <div class="vg-line-name">
-      <input class="vg-line-name-input" type="text" value="${nameVal.replace(/"/g,'&quot;')}"
-        placeholder="Line item name" oninput="update()">
+    <div class="vg-line-top">
+      <input class="vg-line-name-input" type="text" value="${name.replace(/"/g,'&quot;')}" placeholder="Line item name" oninput="update()">
+      <span class="vg-type-badge vg-type-flat">flat fee</span>
+      <button class="vg-line-del" onclick="removeZdLine(this)" title="Remove">✕</button>
     </div>
-    <span style="font-size:11px;color:var(--muted)">€</span>
-    <input type="number" class="vg-line-cost-input zd-line-cost" min="0" step="1" value="${costVal}" oninput="update()">
-    <span style="font-size:10px;color:var(--muted)">/yr</span>
-    <button class="vg-line-del" onclick="removeZdLine(this)" title="Remove">✕</button>`;
+    <div class="vg-line-detail">
+      <span class="vg-detail-text">€</span>
+      <input type="number" class="vg-line-cost-input zd-line-cost" min="0" step="1" value="${costVal}" oninput="update()">
+      <span class="vg-detail-text">/yr</span>
+    </div>`;
   container.appendChild(row);
+}
+
+// "Add Zendesk line item" button → flat fee row
+function addZdLine() {
+  addZdFlatLine('New line item', 0);
   update();
 }
 
@@ -837,7 +882,10 @@ function removeToolRow(btn) {
 
 // ── Seed on page load ──
 function initToolRows() {
-  ZD_PRESET_LINES.forEach(t => addZdLine(t.name, t.cost));
+  ZD_PRESET_LINES.forEach(t => {
+    if (t.type === 'seat') addZdSeatLine(t.name, t.seats, t.annualPerSeat);
+    else addZdFlatLine(t.name, t.cost);
+  });
 }
 
 function setVal(id, text) {
@@ -1021,9 +1069,14 @@ function update(scenarioName) {
   if (wsStatsEl) wsStatsEl.innerHTML = wsStatsEl.textContent + costSpan(costs.wsCost);
 
   // Cost breakdown bar — tooling from dynamic Tooling Costs section
-  // Sum all Zendesk line items
+  // Sum Zendesk flat-fee line items
   let zdTotal = 0;
   document.querySelectorAll('.zd-line-cost').forEach(inp => { zdTotal += +inp.value || 0; });
+  // Sum Zendesk per-seat line items
+  document.querySelectorAll('#zd-line-rows .vg-line[data-annual-per-seat]').forEach(row => {
+    const seats = +row.querySelector('.vg-seat-count').value || 0;
+    zdTotal += Math.round(seats * parseFloat(row.dataset.annualPerSeat));
+  });
   // Sum standalone other-vendor rows
   let otherTools = 0;
   document.querySelectorAll('.tool-extra-cost').forEach(inp => { otherTools += +inp.value || 0; });
