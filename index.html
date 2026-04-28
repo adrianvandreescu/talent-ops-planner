@@ -225,10 +225,6 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 .vg-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
 .vendor-group.expanded .vg-body { max-height: 600px; }
 .vg-inner { padding: 10px 12px 12px; border-top: 1px solid var(--border); background: rgba(45,49,255,.015); }
-/* anchor row (Suite + WFE) */
-.vg-anchor { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid var(--border); }
-.vg-anchor-name { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-.vg-anchor-cost { font-size: 13px; font-weight: 700; color: var(--blue); white-space: nowrap; }
 /* line items */
 .vg-line { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
 .vg-line-name { flex: 1; min-width: 0; }
@@ -523,28 +519,7 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
           </div>
           <div class="vg-body">
             <div class="vg-inner">
-              <!-- Anchor: seats-based row -->
-              <div class="vg-anchor">
-                <div style="flex:1;min-width:0">
-                  <div class="vg-anchor-name">Suite + WFE</div>
-                  <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:4px">
-                    <input type="number" id="zd-seats" min="1" max="500" step="1" value="35"
-                      style="width:44px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
-                      oninput="update()" title="Number of seats">
-                    <span style="font-size:11px;color:var(--muted)">seats × €</span>
-                    <input type="number" id="zd-seat" min="0" max="999" step="1" value="141"
-                      style="width:44px;padding:2px 4px;border:1px solid #d5dae2;border-radius:5px;font-family:inherit;font-size:12px;font-weight:700;color:var(--purple);text-align:right"
-                      oninput="update()" title="€ per seat per month">
-                    <span style="font-size:11px;color:var(--muted)">/mo</span>
-                  </div>
-                </div>
-                <div style="text-align:right;white-space:nowrap">
-                  <div class="vg-anchor-cost" id="zd-annual-display">€59.220</div>
-                  <div style="font-size:10px;color:var(--muted)">/yr</div>
-                </div>
-              </div>
-
-              <!-- Fixed Zendesk line items -->
+              <!-- Zendesk line items -->
               <div id="zd-line-rows"></div>
 
               <!-- Add Zendesk line item -->
@@ -803,9 +778,10 @@ function toggleVendor(headerEl) {
 // ── Zendesk line items ──
 let _zdLineCounter = 0;
 const ZD_PRESET_LINES = [
-  { name: 'AI Agents',              cost: 20000 },
-  { name: 'Automated Resolutions',  cost: 80000 },
-  { name: 'Talk Credits',           cost: 10    },
+  { name: 'Suite Enterprise (35 seats)', cost: 21477 },
+  { name: 'WFE Bundle (35 seats)',        cost: 14280 },
+  { name: 'AI Expert Pro',               cost: 20000 },
+  { name: 'Automated Resolutions',       cost: 76000 },
 ];
 
 function addZdLine(name, cost) {
@@ -1045,13 +1021,9 @@ function update(scenarioName) {
   if (wsStatsEl) wsStatsEl.innerHTML = wsStatsEl.textContent + costSpan(costs.wsCost);
 
   // Cost breakdown bar — tooling from dynamic Tooling Costs section
-  const zdSeat   = +document.getElementById('zd-seat').value  || 141;
-  const zdSeats  = +document.getElementById('zd-seats').value || 35;
-  const zdAnnual = zdSeats * zdSeat * 12;
-  // Sum Zendesk fixed line items
-  let zdFixed = 0;
-  document.querySelectorAll('.zd-line-cost').forEach(inp => { zdFixed += +inp.value || 0; });
-  const zdTotal = zdAnnual + zdFixed;
+  // Sum all Zendesk line items
+  let zdTotal = 0;
+  document.querySelectorAll('.zd-line-cost').forEach(inp => { zdTotal += +inp.value || 0; });
   // Sum standalone other-vendor rows
   let otherTools = 0;
   document.querySelectorAll('.tool-extra-cost').forEach(inp => { otherTools += +inp.value || 0; });
@@ -1059,7 +1031,6 @@ function update(scenarioName) {
   const grandTotal = costs.total + toolingTotal;
   // Update Tooling Costs section displays
   const el = id => document.getElementById(id);
-  if (el('zd-annual-display'))    el('zd-annual-display').textContent    = '€' + zdAnnual.toLocaleString('de-DE');
   if (el('zd-subtotal-display'))  el('zd-subtotal-display').textContent  = '€' + zdTotal.toLocaleString('de-DE');
   if (el('zd-header-subtotal'))   el('zd-header-subtotal').textContent   = '€' + zdTotal.toLocaleString('de-DE');
   if (el('tooling-total-display'))el('tooling-total-display').textContent= '€' + toolingTotal.toLocaleString('de-DE');
