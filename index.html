@@ -692,14 +692,9 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
     <div class="m-sub" id="m-tcap-d"></div>
   </div>
   <div class="metric">
-    <div class="m-label">Annual Cost</div>
-    <div class="m-value" id="m-cost" style="font-size:18px">—</div>
-    <div class="m-sub" id="m-cost-d"></div>
-  </div>
-  <div class="metric">
     <div class="m-label">HC Cost / yr</div>
     <div class="m-value" id="cb-hc" style="font-size:18px">—</div>
-    <div class="m-sub">salaries</div>
+    <div class="m-sub" id="m-cost-d"></div>
   </div>
   <div class="metric">
     <div class="m-label">Tooling / yr</div>
@@ -1034,7 +1029,6 @@ function update(scenarioName) {
   const costDeltaRounded = Math.round(costDelta / 1000) * 1000;
   const costDeltaFmt = (costDeltaRounded >= 0 ? '+' : '') + fmtEur(Math.abs(costDeltaRounded));
   const costDeltaCls = costDeltaRounded > 0 ? 'd-up' : costDeltaRounded < 0 ? 'd-down' : 'd-neu';
-  setVal('m-cost', fmtEur(costs.total));
   document.getElementById('m-cost-d').innerHTML = '<span class="delta ' + costDeltaCls + '">' + costDeltaFmt + '</span> vs. current';
 
   // 5th metric and apply-btn updated after window calc below (now via updateCapacity)
