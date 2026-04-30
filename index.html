@@ -456,12 +456,12 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
 
     </div>
 
-    <!-- Salary Assumptions -->
+    <!-- Cost to Company -->
     <div class="cg collapsed">
-      <div class="cg-title collapsible" onclick="toggleSection(this)">Salary Assumptions</div>
+      <div class="cg-title collapsible" onclick="toggleSection(this)">Cost to Company</div>
       <div class="collapsible-body">
       <div class="cg-row">
-        <label><span>L1 FTE annual salary</span></label>
+        <label><span>L1 FTE cost to company</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-l1-fte',-1000)">−</button>
           <input type="number" id="sl-l1-fte" value="35000" min="25000" max="55000" step="1000" oninput="onSalary()">
@@ -471,7 +471,7 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
         <div class="step-effective" id="eff-l1-fte">↳ all-in: <strong>€42,350</strong> /yr per FTE</div>
       </div>
       <div class="cg-row">
-        <label><span>L2 FTE annual salary</span></label>
+        <label><span>L2 FTE cost to company</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-l2-fte',-1000)">−</button>
           <input type="number" id="sl-l2-fte" value="35000" min="25000" max="55000" step="1000" oninput="onSalary()">
