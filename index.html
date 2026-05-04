@@ -464,41 +464,41 @@ input[type=range] { width: 100%; height: 4px; accent-color: var(--blue); cursor:
         <label><span>L1 FTE cost to company</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-l1-fte',-1000)">−</button>
-          <input type="number" id="sl-l1-fte" value="29750" min="25000" max="55000" step="1000" oninput="onSalary()">
+          <input type="number" id="sl-l1-fte" value="35000" min="25000" max="55000" step="1000" oninput="onSalary()">
           <span class="step-unit">€ /yr</span>
           <button class="step-btn" onclick="step('sl-l1-fte',1000)">+</button>
         </div>
-        <div class="step-effective" id="eff-l1-fte">↳ all-in: <strong>€35,998</strong> /yr per FTE</div>
+        <div class="step-effective" id="eff-l1-fte">↳ all-in: <strong>€42,350</strong> /yr per FTE</div>
       </div>
       <div class="cg-row">
         <label><span>L2 FTE cost to company</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-l2-fte',-1000)">−</button>
-          <input type="number" id="sl-l2-fte" value="29750" min="25000" max="55000" step="1000" oninput="onSalary()">
+          <input type="number" id="sl-l2-fte" value="35000" min="25000" max="55000" step="1000" oninput="onSalary()">
           <span class="step-unit">€ /yr</span>
           <button class="step-btn" onclick="step('sl-l2-fte',1000)">+</button>
         </div>
-        <div class="step-effective" id="eff-l2-fte">↳ all-in: <strong>€35,998</strong> /yr per FTE</div>
+        <div class="step-effective" id="eff-l2-fte">↳ all-in: <strong>€42,350</strong> /yr per FTE</div>
       </div>
       <div class="cg-row">
         <label><span>WS L2 gross hourly rate</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-ws-l2',-0.5)">−</button>
-          <input type="number" id="sl-ws-l2" value="14.5" min="12" max="25" step="0.5" oninput="onSalary()">
+          <input type="number" id="sl-ws-l2" value="17" min="12" max="25" step="0.5" oninput="onSalary()">
           <span class="step-unit">€ /hr gross</span>
           <button class="step-btn" onclick="step('sl-ws-l2',0.5)">+</button>
         </div>
-        <div class="step-effective" id="eff-ws-l2">↳ all-in: <strong>€16.08</strong> /hr effective</div>
+        <div class="step-effective" id="eff-ws-l2">↳ all-in: <strong>€18.85</strong> /hr effective</div>
       </div>
       <div class="cg-row">
         <label><span>WS L1 &amp; Fulfillment gross hourly rate</span></label>
         <div class="stepper">
           <button class="step-btn" onclick="step('sl-ws-l1ff',-0.5)">−</button>
-          <input type="number" id="sl-ws-l1ff" value="13" min="10" max="22" step="0.5" oninput="onSalary()">
+          <input type="number" id="sl-ws-l1ff" value="15" min="10" max="22" step="0.5" oninput="onSalary()">
           <span class="step-unit">€ /hr gross</span>
           <button class="step-btn" onclick="step('sl-ws-l1ff',0.5)">+</button>
         </div>
-        <div class="step-effective" id="eff-ws-l1ff">↳ all-in: <strong>€14.42</strong> /hr effective</div>
+        <div class="step-effective" id="eff-ws-l1ff">↳ all-in: <strong>€16.64</strong> /hr effective</div>
       </div>
       <div style="font-size:10px;color:var(--muted);line-height:1.6;padding:8px 10px;background:rgba(45,49,255,.04);border-left:3px solid rgba(45,49,255,.25);border-radius:0 5px 5px 0;margin-bottom:14px">
         All rates are <strong style="color:var(--text)">gross</strong> — employer overhead applied automatically:<br>
@@ -728,10 +728,10 @@ const FTE_OVERHEAD = 1.21;  // employer social contributions: RV 9.3% + KV 7.3% 
 
 function getSalaryInputs() {
   return {
-    l1Fte:  +document.getElementById('sl-l1-fte').value  || 29750,
-    l2Fte:  +document.getElementById('sl-l2-fte').value  || 29750,
-    wsL2:   +document.getElementById('sl-ws-l2').value   || 14.5,
-    wsL1ff: +document.getElementById('sl-ws-l1ff').value || 13,
+    l1Fte:  +document.getElementById('sl-l1-fte').value  || 35000,
+    l2Fte:  +document.getElementById('sl-l2-fte').value  || 35000,
+    wsL2:   +document.getElementById('sl-ws-l2').value   || 17,
+    wsL1ff: +document.getElementById('sl-ws-l1ff').value || 15,
   };
 }
 
@@ -1095,10 +1095,10 @@ function update(scenarioName) {
 
   // Salary slider display labels
   // Effective cost lines below each stepper
-  const l1FteVal  = +document.getElementById('sl-l1-fte').value  || 29750;
-  const l2FteVal  = +document.getElementById('sl-l2-fte').value  || 29750;
-  const wsL2Val   = +document.getElementById('sl-ws-l2').value   || 14.5;
-  const wsL1ffVal = +document.getElementById('sl-ws-l1ff').value || 13;
+  const l1FteVal  = +document.getElementById('sl-l1-fte').value  || 35000;
+  const l2FteVal  = +document.getElementById('sl-l2-fte').value  || 35000;
+  const wsL2Val   = +document.getElementById('sl-ws-l2').value   || 17;
+  const wsL1ffVal = +document.getElementById('sl-ws-l1ff').value || 15;
   const fmt = n => Math.round(n).toLocaleString('de-DE');
   document.getElementById('eff-l1-fte').innerHTML  = '↳ all-in: <strong>€' + fmt(l1FteVal * FTE_OVERHEAD)  + '</strong> /yr per FTE';
   document.getElementById('eff-l2-fte').innerHTML  = '↳ all-in: <strong>€' + fmt(l2FteVal * FTE_OVERHEAD)  + '</strong> /yr per FTE';
